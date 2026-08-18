@@ -113,7 +113,6 @@ export default function OrderSuccess() {
         >
           <div className="flex items-center justify-between mb-6 pb-3 border-b border-brand-border">
             <h2 className="text-xl md:text-2xl font-serif font-bold uppercase tracking-wide text-brand-text flex items-center gap-2">
-              <Download className="text-brand-accent" size={22} />
               YOUR DIGITAL ASSETS
             </h2>
             <span className="text-xs font-semibold text-brand-text-muted">
