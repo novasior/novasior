@@ -1,16 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion } from 'motion/react';
 import { 
   CheckCircle2, 
-  Download, 
-  Copy, 
-  Check, 
   ArrowRight, 
   ShieldCheck, 
-  FileText, 
-  Sparkles, 
-  ExternalLink,
+  Sparkles,
   HelpCircle
 } from 'lucide-react';
 import { useCartStore } from '../store';
@@ -18,8 +13,6 @@ import { products } from '../data/products';
 
 export default function OrderSuccess() {
   const { lastOrder, clearCart } = useCartStore();
-  const [copiedId, setCopiedId] = useState<string | null>(null);
-  const [downloadingId, setDownloadingId] = useState<string | null>(null);
 
   useEffect(() => {
     // Clear cart in case it wasn't already cleared
@@ -41,28 +34,6 @@ export default function OrderSuccess() {
       { product: products[0], quantity: 1 },
       { product: products[1], quantity: 1 }
     ]
-  };
-
-  const handleCopyLink = (productId: string) => {
-    const link = `https://novasior.com/downloads/${displayOrder.id}/${productId}`;
-    navigator.clipboard.writeText(link);
-    setCopiedId(productId);
-    setTimeout(() => setCopiedId(null), 2500);
-  };
-
-  const handleTriggerDownload = (productName: string, productId: string) => {
-    setDownloadingId(productId);
-    setTimeout(() => {
-      setDownloadingId(null);
-      // Create a dummy blob download for immediate user satisfaction
-      const element = document.createElement("a");
-      const file = new Blob([`NOVASIOR Digital License & Asset Package\n\nProduct: ${productName}\nOrder: ${displayOrder.id}\nLicensed to: ${displayOrder.name}\nKey: NVSR-KEY-${Math.random().toString(36).substring(2, 10).toUpperCase()}\n\nThank you for choosing NOVASIOR. Live Beyond Average.`], { type: 'text/plain' });
-      element.href = URL.createObjectURL(file);
-      element.download = `${productName.toLowerCase().replace(/\s+/g, '-')}-license.txt`;
-      document.body.appendChild(element);
-      element.click();
-      document.body.removeChild(element);
-    }, 1000);
   };
 
   return (
@@ -152,9 +123,6 @@ export default function OrderSuccess() {
 
           <div className="space-y-6">
             {displayOrder.items.map(({ product }, idx) => {
-              const isDownloading = downloadingId === product.id;
-              const isCopied = copiedId === product.id;
-
               return (
                 <motion.div
                   key={product.id}
@@ -192,48 +160,6 @@ export default function OrderSuccess() {
                       <span className="bg-brand-bg px-2.5 py-1 rounded-lg border border-brand-border">High-Res PDF</span>
                       <span className="bg-brand-bg px-2.5 py-1 rounded-lg border border-brand-border">Personal License</span>
                     </div>
-                  </div>
-
-                  {/* Actions */}
-                  <div className="flex flex-col sm:flex-row md:flex-col gap-3 w-full md:w-auto shrink-0">
-                    <button
-                      onClick={() => handleTriggerDownload(product.name, product.id)}
-                      disabled={isDownloading}
-                      className="px-6 py-3.5 bg-brand-text text-white rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-neutral-800 transition-all shadow-md flex items-center justify-center gap-2"
-                    >
-                      {isDownloading ? (
-                        <>
-                          <motion.div
-                            animate={{ rotate: 360 }}
-                            transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-                            className="w-4 h-4 border-2 border-white border-t-transparent rounded-full"
-                          />
-                          <span>Preparing Asset...</span>
-                        </>
-                      ) : (
-                        <>
-                          <Download size={15} />
-                          <span>Download Asset</span>
-                        </>
-                      )}
-                    </button>
-
-                    <button
-                      onClick={() => handleCopyLink(product.id)}
-                      className="px-6 py-3.5 bg-brand-bg border border-brand-border text-brand-text rounded-xl text-xs font-bold uppercase tracking-wider hover:border-brand-text transition-all flex items-center justify-center gap-2"
-                    >
-                      {isCopied ? (
-                        <>
-                          <Check size={15} className="text-emerald-600" />
-                          <span className="text-emerald-700">Link Copied!</span>
-                        </>
-                      ) : (
-                        <>
-                          <Copy size={15} />
-                          <span>Copy Direct Link</span>
-                        </>
-                      )}
-                    </button>
                   </div>
                 </motion.div>
               );
