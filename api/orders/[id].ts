@@ -1,4 +1,4 @@
-import { getOrderByRazorpayOrderId } from '../../server/orders';
+import { getOrderByRazorpayOrderId } from '../lib/orders.js';
 
 export default async function handler(req: any, res: any) {
   try {

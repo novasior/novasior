@@ -1,4 +1,4 @@
-import { getOrders } from '../../server/orders';
+import { getOrders } from '../lib/orders.js';
 
 export default async function handler(_req: any, res: any) {
   try {

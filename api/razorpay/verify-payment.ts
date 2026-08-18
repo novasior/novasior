@@ -1,8 +1,8 @@
-import { razorpayClient } from '../../server/config';
-import { verifyPaymentSignature, getAmountInPaise } from '../../server/razorpay';
-import { storeVerifiedOrderAndItems } from '../../server/order-storage';
-import { notifyMakeWebhook } from '../../server/make';
-import { getRequestBody, jsonError } from '../../server/request';
+import { razorpayClient } from '../lib/config.js';
+import { verifyPaymentSignature, getAmountInPaise } from '../lib/razorpay.js';
+import { storeVerifiedOrderAndItems } from '../lib/order-storage.js';
+import { notifyMakeWebhook } from '../lib/make.js';
+import { getRequestBody, jsonError } from '../lib/request.js';
 
 export default async function handler(req: any, res: any) {
   try {

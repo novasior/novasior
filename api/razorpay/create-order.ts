@@ -1,5 +1,5 @@
-import { createRazorpayOrder } from '../../server/razorpay';
-import { getRequestBody, jsonError } from '../../server/request';
+import { createRazorpayOrder } from '../lib/razorpay.js';
+import { getRequestBody, jsonError } from '../lib/request.js';
 
 export default async function handler(req: any, res: any) {
   try {
