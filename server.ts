@@ -437,4 +437,10 @@ async function initServer() {
   });
 }
 
-initServer();
+// Export the Express app for Vercel serverless functions
+export { app };
+
+// Only start the local dev server when NOT running on Vercel
+if (!process.env.VERCEL) {
+  initServer();
+}
