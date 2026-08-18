@@ -1,4 +1,4 @@
-export function getRequestBody(req: any) {
+export async function getRequestBody(req: any) {
   if (req?.body && typeof req.body === 'object') {
     return req.body;
   }
@@ -6,6 +6,26 @@ export function getRequestBody(req: any) {
   if (typeof req?.body === 'string') {
     try {
       return JSON.parse(req.body);
+    } catch {
+      return {};
+    }
+  }
+
+  if (req && typeof req.read === 'function') {
+    try {
+      const chunks: Buffer[] = [];
+      for await (const chunk of req) {
+        chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+      }
+
+      const raw = Buffer.concat(chunks).toString('utf8').trim();
+      if (!raw) return {};
+
+      try {
+        return JSON.parse(raw);
+      } catch {
+        return {};
+      }
     } catch {
       return {};
     }

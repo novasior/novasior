@@ -70,7 +70,7 @@ export default async function handler(req: any, res: any) {
     }
 
     try {
-      const body = getRequestBody(req);
+      const body = await getRequestBody(req);
       const amount = Number(body.amount);
       const currency = (body.currency || 'INR').toUpperCase();
       const customerName = String(body.customerName || '').trim();
@@ -111,7 +111,7 @@ export default async function handler(req: any, res: any) {
     }
 
     try {
-      const body = getRequestBody(req);
+      const body = await getRequestBody(req);
       const {
         razorpay_order_id,
         razorpay_payment_id,
