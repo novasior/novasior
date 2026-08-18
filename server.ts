@@ -405,6 +405,38 @@ app.get('/api/orders/:id', async (req, res) => {
 });
 
 // ============================================================================
+// GLOBAL ERROR HANDLER
+// ============================================================================
+// Ensure API routes always return JSON on unexpected errors so the frontend
+// never receives an HTML error page (which causes JSON.parse failures).
+app.use((err: any, req: any, res: any, next: any) => {
+  try {
+    console.error('Unhandled server error:', err && err.stack ? err.stack : err);
+    // If the request targets our API, always respond with JSON
+    if (String(req && req.path || '').startsWith('/api/')) {
+      if (!res.headersSent) {
+        const message = err && err.message ? err.message : String(err || 'Internal Server Error');
+        return res.status(500).json({ success: false, error: message });
+      }
+      return;
+    }
+
+    // For non-API requests, fall back to plain text to avoid leaking stack traces
+    if (!res.headersSent) {
+      res.status(500).send('Internal Server Error');
+    }
+  } catch (e) {
+    // If the error handler itself throws, log and attempt a safe response
+    console.error('Error inside error handler:', e);
+    if (!res.headersSent) {
+      res.status(500).json({ success: false, error: 'Internal Server Error' });
+    }
+  }
+  // eslint-disable-next-line no-unused-vars
+  return next && next();
+});
+
+// ============================================================================
 // SERVER INITIALIZATION
 // ============================================================================
 
