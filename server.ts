@@ -145,7 +145,7 @@ async function storeVerifiedOrderAndItems(payload: VerifiedOrderPayload) {
 // ============================================================================
 
 async function notifyMakeWebhook(orderId: number | string) {
-  const makeWebhookUrl = process.env.MAKE_WEBHOOK_URL || 'https://hook.eu1.make.com/lhkqc4gskv1u2omo5r8wafv5ne1y1jej';
+  const makeWebhookUrl = process.env.MAKE_WEBHOOK_URL || '';
   const makeApiKey = process.env.MAKE_WEBHOOK_API_KEY || '';
 
   console.log(`📡 Sending webhook to Make.com for order_id: ${orderId}...`);
@@ -182,7 +182,7 @@ async function notifyMakeWebhook(orderId: number | string) {
 app.get('/api/health', async (_req, res) => {
   const razorpayOk = Boolean(razorpayClient);
   const supabaseOk = Boolean(supabaseAdminClient);
-  const makeWebhookOk = Boolean(process.env.MAKE_WEBHOOK_URL || 'https://hook.eu1.make.com/lhkqc4gskv1u2omo5r8wafv5ne1y1jej');
+  const makeWebhookOk = Boolean(process.env.MAKE_WEBHOOK_URL);
 
   res.json({
     ok: true,
@@ -464,7 +464,7 @@ async function initServer() {
     console.log(`  Environment: ${envStatus}`);
     console.log(`  Razorpay: ${razorpayClient ? '✓ Configured' : '✗ Not Configured'}`);
     console.log(`  Supabase: ${supabaseAdminClient ? '✓ Configured' : '✗ Not Configured'}`);
-    console.log(`  Make Webhook: ${process.env.MAKE_WEBHOOK_URL || 'https://hook.eu1.make.com/lhkqc4gskv1u2omo5r8wafv5ne1y1jej' ? '✓ Configured' : '✗ Not Configured'}`);
+    console.log(`  Make Webhook: ${process.env.MAKE_WEBHOOK_URL ? '✓ Configured' : '✗ Not Configured'}`);
     console.log(`${'='.repeat(70)}\n`);
   });
 }
