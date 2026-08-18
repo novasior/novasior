@@ -179,6 +179,10 @@ async function notifyMakeWebhook(orderId: number | string) {
 // API ENDPOINTS
 // ============================================================================
 
+app.options('/api/*', (_req, res) => {
+  res.status(204).end();
+});
+
 app.get('/api/health', async (_req, res) => {
   const razorpayOk = Boolean(razorpayClient);
   const supabaseOk = Boolean(supabaseAdminClient);

@@ -62,10 +62,16 @@ export default function Checkout() {
         }),
       });
 
-      const data = await res.json();
+      let data: any = null;
+      try {
+        data = await res.json();
+      } catch {
+        data = null;
+      }
 
-      if (!res.ok || !data.success) {
-        throw new Error(data.error || 'Failed to initiate Razorpay order');
+      if (!res.ok || !data || !data.success) {
+        const message = data?.error || `Failed to initiate Razorpay order (${res.status})`;
+        throw new Error(message);
       }
 
       const { order, keyId } = data;
@@ -114,15 +120,21 @@ export default function Checkout() {
               }),
             });
 
-            const verifyData = await verifyRes.json();
-            if (verifyRes.ok && verifyData.verified) {
+            let verifyData: any = null;
+            try {
+              verifyData = await verifyRes.json();
+            } catch {
+              verifyData = null;
+            }
+
+            if (verifyRes.ok && verifyData?.verified) {
               finalizeOrderSuccess(response.razorpay_order_id, {
                 paymentId: response.razorpay_payment_id,
                 amount: Number((order.amount / 100).toFixed(2)),
                 currency: order.currency || 'INR',
               });
             } else {
-              setErrorMessage(verifyData.error || 'Payment verification failed');
+              setErrorMessage(verifyData?.error || `Payment verification failed (${verifyRes.status})`);
               setIsProcessing(false);
             }
           } catch (err: any) {

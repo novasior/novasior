@@ -17,6 +17,10 @@ export default async function handler(req: any, res: any) {
   const segments = getRouteParts(req);
   const [first, second] = segments;
 
+  if (method === 'OPTIONS') {
+    return res.status(204).end();
+  }
+
   if (method === 'GET' && (!segments.length || segments[0] === '')) {
     return res.status(200).json({
       ok: true,
@@ -60,7 +64,11 @@ export default async function handler(req: any, res: any) {
     }
   }
 
-  if (method === 'POST' && first === 'razorpay' && second === 'create-order') {
+  if (first === 'razorpay' && second === 'create-order') {
+    if (method !== 'POST') {
+      return jsonError(res, 405, 'Method not allowed. Use POST.');
+    }
+
     try {
       const body = getRequestBody(req);
       const amount = Number(body.amount);
@@ -97,7 +105,11 @@ export default async function handler(req: any, res: any) {
     }
   }
 
-  if (method === 'POST' && first === 'razorpay' && second === 'verify-payment') {
+  if (first === 'razorpay' && second === 'verify-payment') {
+    if (method !== 'POST') {
+      return jsonError(res, 405, 'Method not allowed. Use POST.');
+    }
+
     try {
       const body = getRequestBody(req);
       const {
