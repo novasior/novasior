@@ -9,11 +9,15 @@ interface CartItem {
 
 interface OrderInfo {
   id: string;
+  paymentId?: string;
+  amount?: number;
+  currency?: string;
   items: CartItem[];
   total: number;
   email: string;
   name: string;
   date: string;
+  status?: string;
 }
 
 interface CartStore {

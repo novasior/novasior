@@ -13,9 +13,12 @@ export default function Checkout() {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
 
-  const finalizeOrderSuccess = (orderId: string) => {
+  const finalizeOrderSuccess = (orderId: string, paymentDetails?: { paymentId?: string; amount?: number; currency?: string }) => {
     const newOrder = {
       id: orderId,
+      paymentId: paymentDetails?.paymentId ?? '',
+      amount: paymentDetails?.amount ?? getCartTotal(),
+      currency: paymentDetails?.currency ?? 'INR',
       items: [...items],
       total: getCartTotal(),
       email,
@@ -24,19 +27,14 @@ export default function Checkout() {
         month: 'short',
         day: 'numeric',
         year: 'numeric'
-      })
+      }),
+      status: 'paid',
     };
 
     setLastOrder(newOrder);
     clearCart();
     setIsProcessing(false);
     navigate('/success');
-  };
-
-  const isDummyKey = (key?: string) => {
-    if (!key) return true;
-    const k = key.toLowerCase();
-    return k.includes('placeholder') || k.includes('demo') || k.includes('my_') || k === 'rzp_test_placeholderkeyid';
   };
 
   const handleCompletePurchase = async (e: React.FormEvent) => {
@@ -46,21 +44,21 @@ export default function Checkout() {
     setIsProcessing(true);
     setErrorMessage(null);
 
-    const orderNumber = `NOV-${Math.floor(100000 + Math.random() * 900000)}`;
-
     try {
-      // 1. Create Razorpay order via backend API
       const res = await fetch('/api/razorpay/create-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           amount: getCartTotal(),
           currency: 'INR',
-          receipt: orderNumber,
-          notes: {
-            customer_name: `${firstName} ${lastName}`.trim(),
-            customer_email: email,
-          },
+          customerName: `${firstName} ${lastName}`.trim(),
+          customerEmail: email,
+          items: items.map((item) => ({
+            id: item.product.id,
+            name: item.product.name,
+            quantity: item.quantity,
+            price: item.product.price,
+          })),
         }),
       });
 
@@ -70,47 +68,59 @@ export default function Checkout() {
         throw new Error(data.error || 'Failed to initiate Razorpay order');
       }
 
-      const { order, keyId, isSimulated } = data;
+      const { order, keyId } = data;
 
-      // 2. If it's a simulated order or using dummy test keys, handle smoothly without triggering Razorpay CDN Auth error
-      if (isSimulated || isDummyKey(keyId) || !window.Razorpay) {
-        setTimeout(() => {
-          finalizeOrderSuccess(orderNumber);
-        }, 1200);
-        return;
+      if (!keyId || keyId.includes('placeholder') || keyId.includes('demo')) {
+        throw new Error('Razorpay is not configured. Add a valid key in your Vercel environment variables.');
       }
 
-      // 3. Open Razorpay Checkout modal for real Razorpay credentials
+      if (!window.Razorpay) {
+        throw new Error('Razorpay script did not load. Please refresh and try again.');
+      }
+
       const options = {
         key: keyId,
         amount: order.amount,
         currency: order.currency || 'INR',
         name: 'NOVASIOR',
         description: 'Digital Products Order',
-        order_id: order.id.startsWith('order_sim_') ? undefined : order.id,
+        order_id: order.id,
         prefill: {
           name: `${firstName} ${lastName}`.trim(),
-          email: email,
+          email,
         },
         theme: {
           color: '#111111',
         },
         handler: async function (response: any) {
           try {
-            // Verify payment signature on backend
             const verifyRes = await fetch('/api/razorpay/verify-payment', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
-                razorpay_order_id: response.razorpay_order_id || order.id,
-                razorpay_payment_id: response.razorpay_payment_id || `pay_${Date.now()}`,
-                razorpay_signature: response.razorpay_signature || 'simulated_sig',
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                amount: getCartTotal(),
+                currency: 'INR',
+                customerName: `${firstName} ${lastName}`.trim(),
+                customerEmail: email,
+                items: items.map((item) => ({
+                  id: item.product.id,
+                  name: item.product.name,
+                  quantity: item.quantity,
+                  price: item.product.price,
+                })),
               }),
             });
 
             const verifyData = await verifyRes.json();
             if (verifyRes.ok && verifyData.verified) {
-              finalizeOrderSuccess(orderNumber);
+              finalizeOrderSuccess(response.razorpay_order_id, {
+                paymentId: response.razorpay_payment_id,
+                amount: Number((order.amount / 100).toFixed(2)),
+                currency: order.currency || 'INR',
+              });
             } else {
               setErrorMessage(verifyData.error || 'Payment verification failed');
               setIsProcessing(false);
@@ -130,24 +140,14 @@ export default function Checkout() {
       const razorpayCheckout = new window.Razorpay(options);
       razorpayCheckout.on('payment.failed', function (resp: any) {
         const desc = resp?.error?.description || resp?.error?.reason || 'Payment failed';
-        if (desc.includes('Authentication failed') || resp?.error?.code === 'BAD_REQUEST_ERROR') {
-          // If live/test key authentication failed on Razorpay servers, inform user & provide clean fallback
-          console.warn('Razorpay authentication failed with provided key. Completing via simulated mode...');
-          setTimeout(() => {
-            finalizeOrderSuccess(orderNumber);
-          }, 800);
-        } else {
-          setErrorMessage(desc);
-          setIsProcessing(false);
-        }
+        setErrorMessage(desc);
+        setIsProcessing(false);
       });
       razorpayCheckout.open();
     } catch (err: any) {
       console.error('Razorpay process error:', err);
-      // Soft fallback for smooth UX
-      setTimeout(() => {
-        finalizeOrderSuccess(orderNumber);
-      }, 1000);
+      setErrorMessage(err?.message || 'Unable to start Razorpay checkout right now.');
+      setIsProcessing(false);
     }
   };
 
@@ -311,7 +311,7 @@ export default function Checkout() {
                 <div className="p-4 bg-emerald-50/60 border border-emerald-200/80 rounded-2xl flex items-start gap-3">
                   <CheckCircle2 className="text-emerald-600 shrink-0 mt-0.5" size={18} />
                   <p className="text-xs text-emerald-900 font-medium leading-relaxed">
-                    Razorpay test mode is currently active. When you click <strong>Pay with Razorpay</strong>, the gateway will process your transaction safely and redirect you to download your assets.
+                    Secure checkout powered by Razorpay. Once payment is completed, your order is verified on the backend and your digital assets are unlocked immediately.
                   </p>
                 </div>
               </section>

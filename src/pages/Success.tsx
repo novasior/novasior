@@ -30,6 +30,9 @@ export default function OrderSuccess() {
   // Fallback items if visited directly without state
   const displayOrder = lastOrder || {
     id: 'NOV-849201',
+    paymentId: 'pay_demo_123',
+    amount: 1299.00,
+    currency: 'INR',
     name: 'Valued Customer',
     email: 'customer@novasior.com',
     date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),

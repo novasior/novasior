@@ -27,8 +27,8 @@ export default function ProductDetail() {
   }
 
   const isInCart = items.some((item) => item.product.id === product.id);
-  const isEbook = product.id === 'p-03';
-  const isTracker = product.id === 'p-02';
+  const isEbook = product.slug === '10-lessons' || product.id === 'a0000000-0000-4000-8000-000000000003';
+  const isTracker = product.slug === 'life-tracker' || product.id === 'a0000000-0000-4000-8000-000000000002';
   const mobileWallpapers = product.wallpapers?.filter((w) => w.type === 'mobile') ?? [];
   const desktopWallpapers = product.wallpapers?.filter((w) => w.type === 'desktop') ?? [];
 
@@ -595,7 +595,7 @@ export default function ProductDetail() {
                     <div className="flex justify-between">
                       <span className="text-neutral-500">Compatibility</span>
                       <span className="font-semibold text-white">
-                        {product.id === 'p-03'
+                        {product.slug === '10-lessons' || product.id === 'a0000000-0000-4000-8000-000000000003'
                           ? 'Windows, macOS, Linux, Android, iOS'
                           : (activeModalWallpaper.type === 'mobile'
                               ? 'Android, iOS'

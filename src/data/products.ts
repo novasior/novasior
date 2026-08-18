@@ -2,7 +2,7 @@ import { Product } from '../types';
 
 export const products: Product[] = [
   {
-    id: 'p-01',
+    id: 'a0000000-0000-4000-8000-000000000001',
     slug: 'motivational-wallpapers',
     name: 'Motivational Wallpapers',
     category: 'Digital Assets',
@@ -50,18 +50,18 @@ export const products: Product[] = [
     ]
   },
   {
-    id: 'p-02',
+    id: 'a0000000-0000-4000-8000-000000000002',
     slug: 'life-tracker',
     name: 'Life Tracker',
     category: 'Tools',
     price: 499.00,
     description: 'A simple digital tracker designed to help you monitor your habits, goals, progress and the areas of life that matter most. It provides the framework to shift from chasing outcomes to actively measuring and managing your personal development and consistency.',
     shortDescription: 'See where you are. Build where you\'re going.',
-      heroImage: '/Image 1(product2).png',
-      galleryImages: [
-        '/Image 1(product2).png',
-        '/image 2 (product2).png'
-      ],
+    heroImage: '/Image 1(product2).png',
+    galleryImages: [
+      '/Image 1(product2).png',
+      '/image 2 (product2).png'
+    ],
     features: [
       'Habit Tracking Dashboard',
       'Goal Setting & Progress Monitoring',
@@ -86,7 +86,7 @@ export const products: Product[] = [
     tags: ['Tracking', 'Habits', 'Growth']
   },
   {
-    id: 'p-03',
+    id: 'a0000000-0000-4000-8000-000000000003',
     slug: '10-lessons',
     name: '10 Lessons to Help You Get Started',
     category: 'Guides',
