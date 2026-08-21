@@ -4,6 +4,8 @@ import { getAmountInPaise, verifyPaymentSignature } from '../lib/razorpay.js';
 import { storeVerifiedOrderAndItems } from '../lib/order-storage.js';
 import { notifyMakeWebhook } from '../lib/make.js';
 import { getRequestBody, jsonError } from '../lib/request.js';
+import { validateProductItems } from '../lib/product-validation.js';
+import { createDownloadLinks } from '../../server/download-links.js';
 
 export default async function handler(req: any, res: any) {
   if (req.method !== 'POST') {
@@ -37,9 +39,24 @@ export default async function handler(req: any, res: any) {
       return jsonError(res, 400, 'Invalid payment signature. Payment verification failed.');
     }
 
+    const safeAmountPaise = getAmountInPaise(Number(amount) || 0);
+    const validated = await validateProductItems(Array.isArray(items) ? items : [], safeAmountPaise);
+    const paymentDetails = await razorpayClient.payments.fetch(razorpay_payment_id) as any;
+    const razorpayOrder = await razorpayClient.orders.fetch(razorpay_order_id) as any;
+
+    if (
+      razorpayOrder?.amount !== validated.amountPaise ||
+      razorpayOrder?.currency !== String(currency).toUpperCase() ||
+      paymentDetails?.order_id !== razorpay_order_id ||
+      paymentDetails?.amount !== validated.amountPaise ||
+      paymentDetails?.currency !== String(currency).toUpperCase() ||
+      paymentDetails?.status !== 'captured'
+    ) {
+      return jsonError(res, 400, 'Payment details do not match the selected products.');
+    }
+
     let actualPaymentMethod = 'razorpay';
     try {
-      const paymentDetails = await razorpayClient.payments.fetch(razorpay_payment_id);
       if (paymentDetails && (paymentDetails as any).method) {
         actualPaymentMethod = (paymentDetails as any).method;
       }
@@ -47,18 +64,16 @@ export default async function handler(req: any, res: any) {
       console.warn(`Notice: Could not query specific payment method from Razorpay: ${methodErr?.message}`);
     }
 
-    const safeAmountPaise = getAmountInPaise(Number(amount) || 0);
-
     const dbResult = await storeVerifiedOrderAndItems({
       razorpayOrderId: razorpay_order_id,
       razorpayPaymentId: razorpay_payment_id,
       razorpaySignature: razorpay_signature,
-      amount: safeAmountPaise,
+      amount: validated.amountPaise,
       currency,
       customerName: String(customerName || 'Customer'),
       customerEmail: String(customerEmail || ''),
       paymentMethod: actualPaymentMethod,
-      items: Array.isArray(items) ? items : [],
+      items: validated.items,
     });
 
     if (!dbResult.success || !dbResult.orderId) {
@@ -74,6 +89,8 @@ export default async function handler(req: any, res: any) {
       await notifyMakeWebhook(dbResult.orderId);
     }
 
+    const downloadLinks = await createDownloadLinks(dbResult.orderId);
+
     console.log(`✓ Payment verified: ${razorpay_payment_id} | orders.id: ${dbResult.orderId} | Method: ${actualPaymentMethod}`);
 
     return res.status(200).json({
@@ -83,6 +100,7 @@ export default async function handler(req: any, res: any) {
       orderId: dbResult.orderId,
       paymentId: razorpay_payment_id,
       paymentMethod: actualPaymentMethod,
+      downloadLinks,
     });
   } catch (error: any) {
     console.error('Razorpay verify-payment error:', error?.message || error);

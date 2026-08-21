@@ -1,10 +1,18 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { Product } from './types';
+import { products } from './data/products';
 
 interface CartItem {
   product: Product;
   quantity: number; // usually 1 for digital products
+}
+
+export interface DownloadLink {
+  productId: string;
+  productName: string;
+  url: string;
+  expiresAt: string;
 }
 
 interface OrderInfo {
@@ -18,6 +26,7 @@ interface OrderInfo {
   name: string;
   date: string;
   status?: string;
+  downloadLinks?: DownloadLink[];
 }
 
 interface CartStore {
@@ -71,6 +80,19 @@ export const useCartStore = create<CartStore>()(
     }),
     {
       name: 'novasior-cart',
+      merge: (persistedState, currentState) => {
+        const persisted = persistedState as Partial<CartStore>;
+        const items = persisted.items?.map((item) => {
+          const currentProduct = products.find((product) => product.id === item.product.id);
+          return currentProduct ? { ...item, product: currentProduct } : item;
+        });
+
+        return {
+          ...currentState,
+          ...persisted,
+          items: items ?? currentState.items,
+        };
+      },
     }
   )
 );

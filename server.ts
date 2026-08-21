@@ -6,6 +6,8 @@ import { createServer as createViteServer } from 'vite';
 import dotenv from 'dotenv';
 import { pathToFileURL } from 'url';
 import { createClient } from '@supabase/supabase-js';
+import { createDownloadLinks, resolveDownloadLink } from './server/download-links.js';
+import { validateOrderItems } from './server/download-links.js';
 
 dotenv.config();
 
@@ -207,6 +209,17 @@ app.get('/api/razorpay/key', (_req, res) => {
   });
 });
 
+app.get('/api/download/:token', async (req, res) => {
+  try {
+    const result = await resolveDownloadLink(req.params.token);
+    if (result.status === 302) return res.redirect(result.url);
+    return res.status(result.status).json({ success: false, error: result.error });
+  } catch (error: any) {
+    console.error('Download resolution error:', error?.message || error);
+    return res.status(500).json({ success: false, error: 'Download could not be started.' });
+  }
+});
+
 app.post('/api/razorpay/create-order', async (req, res) => {
   try {
     const {
@@ -227,6 +240,8 @@ app.post('/api/razorpay/create-order', async (req, res) => {
       return res.status(400).json({ error: 'Customer name and email are required.' });
     }
 
+    const validated = await validateOrderItems(Array.isArray(items) ? items : [], Math.round(numericAmount * 100));
+
     if (!razorpayClient) {
       return res.status(500).json({
         success: false,
@@ -236,7 +251,7 @@ app.post('/api/razorpay/create-order', async (req, res) => {
 
     const receipt = `novasior_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
     const order = await razorpayClient.orders.create({
-      amount: Math.round(numericAmount * 100),
+      amount: validated.reduce((total, item) => total + Math.round(item.price * 100) * item.quantity, 0),
       currency,
       receipt,
       notes: {
@@ -317,6 +332,20 @@ app.post('/api/razorpay/verify-payment', async (req, res) => {
     }
 
     const safeAmountPaise = Math.round((Number(amount) || 0) * 100);
+    const validatedItems = await validateOrderItems(Array.isArray(items) ? items : [], safeAmountPaise);
+    const paymentDetails = await razorpayClient.payments.fetch(razorpay_payment_id) as any;
+    const razorpayOrder = await razorpayClient.orders.fetch(razorpay_order_id) as any;
+
+    if (
+      razorpayOrder?.amount !== safeAmountPaise ||
+      razorpayOrder?.currency !== String(currency).toUpperCase() ||
+      paymentDetails?.order_id !== razorpay_order_id ||
+      paymentDetails?.amount !== safeAmountPaise ||
+      paymentDetails?.currency !== String(currency).toUpperCase() ||
+      paymentDetails?.status !== 'captured'
+    ) {
+      return res.status(400).json({ success: false, verified: false, error: 'Payment details do not match the selected products.' });
+    }
 
     // 3. Store verified paid order + order_items in Supabase
     const dbResult = await storeVerifiedOrderAndItems({
@@ -328,7 +357,7 @@ app.post('/api/razorpay/verify-payment', async (req, res) => {
       customerName: String(customerName || 'Customer'),
       customerEmail: String(customerEmail || ''),
       paymentMethod: actualPaymentMethod,
-      items: Array.isArray(items) ? items : [],
+      items: validatedItems,
     });
 
     if (!dbResult.success || !dbResult.orderId) {
@@ -345,6 +374,8 @@ app.post('/api/razorpay/verify-payment', async (req, res) => {
       await notifyMakeWebhook(dbResult.orderId);
     }
 
+    const downloadLinks = await createDownloadLinks(dbResult.orderId);
+
     console.log(`✓ Payment verified: ${razorpay_payment_id} | orders.id: ${dbResult.orderId} | Method: ${actualPaymentMethod}`);
 
     return res.json({
@@ -354,6 +385,7 @@ app.post('/api/razorpay/verify-payment', async (req, res) => {
       orderId: dbResult.orderId,
       paymentId: razorpay_payment_id,
       paymentMethod: actualPaymentMethod,
+      downloadLinks,
     });
   } catch (error: any) {
     console.error('Razorpay verify-payment error:', error?.message || error);

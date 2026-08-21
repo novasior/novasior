@@ -12,7 +12,7 @@ export default function Home() {
 
   const faqs = [
     { q: "What are NOVASIOR products?", a: "NOVASIOR creates premium digital products—wallpapers, trackers, and guides—designed to help ambitious individuals build discipline and execute their goals." },
-    { q: "How do I receive my purchase?", a: "All products are delivered instantly via email upon purchase. You will receive a secure link to download your digital products." },
+    { q: "How do I receive my purchase?", a: "Your files are available for instant download on the purchase confirmation page, and secure download links are also sent to your email and saved to your profile." },
     { q: "Are the products digital?", a: "Yes, all NOVASIOR products are 100% digital. No physical items will be shipped, allowing for immediate access and implementation." },
     { q: "Can I use them on mobile and desktop?", a: "Absolutely. Our tools are designed to be flexible and can be used across your devices." },
     { q: "Can I get a refund?", a: "Due to the digital nature of our products, all sales are final. We provide comprehensive previews so you know exactly what you are investing in." },
@@ -451,7 +451,7 @@ export default function Home() {
               <div>
                 <span className="text-[10px] font-bold tracking-widest uppercase text-brand-text-muted block mb-4 mt-2">TRACKING TOOL</span>
                 <h3 className="text-2xl font-bold text-brand-text mb-4">Life Tracker</h3>
-                <div className="text-4xl font-bold text-brand-text mb-6">₹499</div>
+                <div className="text-4xl font-bold text-brand-text mb-6">₹199</div>
               </div>
 
               <div className="space-y-3">
@@ -492,7 +492,7 @@ export default function Home() {
               <div>
                 <span className="text-[10px] font-bold tracking-widest uppercase text-brand-text-muted block mb-4">DIGITAL GUIDE</span>
                 <h3 className="text-xl font-bold text-brand-text mb-4">10 Lessons to Start</h3>
-                <div className="text-3xl font-bold text-brand-text mb-6">₹799</div>
+                <div className="text-3xl font-bold text-brand-text mb-6">₹499</div>
               </div>
 
               <div className="space-y-3">

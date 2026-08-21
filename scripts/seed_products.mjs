@@ -43,7 +43,7 @@ const productsToSeed = [
     id: 'a0000000-0000-4000-8000-000000000002',
     name: 'Life Tracker',
     description: 'A simple digital tracker designed to help you monitor your habits, goals, progress and the areas of life that matter most. It provides the framework to shift from chasing outcomes to actively measuring and managing your personal development and consistency.',
-    price: 499.00,
+    price: 199.00,
     currency: 'INR',
     storage_path: 'products/p-02/life-tracker.xlsx',
     active: true
@@ -52,7 +52,7 @@ const productsToSeed = [
     id: 'a0000000-0000-4000-8000-000000000003',
     name: '10 Lessons to Help You Get Started',
     description: 'Ten practical lessons designed to help you gain direction, build momentum and take the first real steps toward becoming the person you want to be. This digital guide focuses on getting started, mindset, discipline, taking action, and personal growth.',
-    price: 799.00,
+    price: 499.00,
     currency: 'INR',
     storage_path: 'products/p-03/10-lessons.pdf',
     active: true

@@ -54,7 +54,7 @@ export const products: Product[] = [
     slug: 'life-tracker',
     name: 'Life Tracker',
     category: 'Tools',
-    price: 499.00,
+    price: 199.00,
     description: 'A simple digital tracker designed to help you monitor your habits, goals, progress and the areas of life that matter most. It provides the framework to shift from chasing outcomes to actively measuring and managing your personal development and consistency.',
     shortDescription: 'See where you are. Build where you\'re going.',
     heroImage: '/Image 1(product2).png',
@@ -75,12 +75,12 @@ export const products: Product[] = [
       'Build unshakeable internal leverage through data'
     ],
     includedItems: [
-      'Complete Digital Tracker',
+      'Complete Digital Tracker (.xlsx)',
       'Setup Guide & Walkthrough',
       'Example Dashboards'
     ],
     faq: [
-      { question: 'Do I need specific software for this?', answer: 'The tracker is designed to be used with common spreadsheet tools or platforms like Notion, and comes with easy-to-use templates.' },
+      { question: 'Do I need specific software for this?', answer: 'The tracker is designed to work with multiple spreadsheet applications and platforms that support .xlsx files, and comes with easy-to-use templates.' },
       { question: 'How much time does it take to use daily?', answer: 'It is designed for efficiency. Tracking your daily progress takes less than 5 minutes.' }
     ],
     tags: ['Tracking', 'Habits', 'Growth']
@@ -90,7 +90,7 @@ export const products: Product[] = [
     slug: '10-lessons',
     name: '10 Lessons to Help You Get Started',
     category: 'Guides',
-    price: 799.00,
+    price: 499.00,
     description: 'Ten practical lessons designed to help you gain direction, build momentum and take the first real steps toward becoming the person you want to be. This digital guide focuses on getting started, mindset, discipline, taking action, and personal growth.',
     shortDescription: 'Stop waiting. Start becoming.',
     heroImage: '/cover image (product3).png',

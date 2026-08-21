@@ -13,7 +13,7 @@ export default function Checkout() {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
 
-  const finalizeOrderSuccess = (orderId: string, paymentDetails?: { paymentId?: string; amount?: number; currency?: string }) => {
+  const finalizeOrderSuccess = (orderId: string, paymentDetails?: { paymentId?: string; amount?: number; currency?: string; downloadLinks?: any[] }) => {
     const newOrder = {
       id: orderId,
       paymentId: paymentDetails?.paymentId ?? '',
@@ -29,6 +29,7 @@ export default function Checkout() {
         year: 'numeric'
       }),
       status: 'paid',
+      downloadLinks: paymentDetails?.downloadLinks,
     };
 
     setLastOrder(newOrder);
@@ -132,6 +133,7 @@ export default function Checkout() {
                 paymentId: response.razorpay_payment_id,
                 amount: Number((order.amount / 100).toFixed(2)),
                 currency: order.currency || 'INR',
+                downloadLinks: verifyData?.downloadLinks,
               });
             } else {
               setErrorMessage(verifyData?.error || `Payment verification failed (${verifyRes.status})`);

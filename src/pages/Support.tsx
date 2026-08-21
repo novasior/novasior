@@ -1,17 +1,14 @@
 import { useState, FormEvent } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Link } from 'react-router-dom';
-import { 
+import {
   HelpCircle, 
-  Mail, 
   MessageSquare, 
   Download, 
   ShieldCheck, 
   Clock, 
   ChevronDown, 
   CheckCircle2, 
-  Send,
-  FileText
+  Send
 } from 'lucide-react';
 
 interface FAQItem {
@@ -32,7 +29,7 @@ const faqs: FAQItem[] = [
     id: '2',
     category: 'Downloads & Access',
     question: 'What formats are the files delivered in?',
-    answer: 'Wallpapers are provided in pristine Ultra-HD (4K/8K) PNG & JPG formats optimized for desktop, mobile, and tablet displays. Digital guides and trackers are delivered as interactive PDFs and Notion templates.'
+    answer: 'Wallpapers are provided in pristine Ultra-HD (4K/8K) PNG & JPG formats optimized for desktop, mobile, and tablet displays. The 10 Lessons guide is delivered as a PDF, and the Life Tracker is delivered as an .xlsx file.'
   },
   {
     id: '3',
@@ -50,7 +47,7 @@ const faqs: FAQItem[] = [
     id: '5',
     category: 'Support & Inquiries',
     question: 'How quickly does the support team respond?',
-    answer: 'Our dedicated support team typically responds to all inquiries within 12-24 business hours.'
+    answer: 'Our dedicated support team typically responds to all inquiries within 48 hours.'
   }
 ];
 
@@ -68,7 +65,15 @@ export default function Support() {
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!formData.name || !formData.email || !formData.message) return;
-    setSubmitted(true);
+    const body = [
+      `Name: ${formData.name}`,
+      `Email: ${formData.email}`,
+      `Order Number: ${formData.orderNumber || 'Not provided'}`,
+      '',
+      formData.message,
+    ].join('\n');
+    const gmailComposeUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=novasior@gmail.com&su=${encodeURIComponent(formData.subject)}&body=${encodeURIComponent(body)}`;
+    window.open(gmailComposeUrl, '_blank');
   };
 
   return (
@@ -122,7 +127,7 @@ export default function Support() {
             <div className="p-3 bg-white/90 border border-brand-border rounded-xl mb-4 text-brand-text">
               <Clock size={24} />
             </div>
-            <h3 className="font-bold text-sm tracking-wide text-brand-text mb-2 uppercase">24h Response Time</h3>
+            <h3 className="font-bold text-sm tracking-wide text-brand-text mb-2 uppercase">48h Response Time</h3>
             <p className="text-xs text-brand-text-muted leading-relaxed">
               Our support team operates Monday through Friday to assist with any questions.
             </p>
@@ -196,10 +201,10 @@ export default function Support() {
                 <MessageSquare size={24} />
               </div>
               <h2 className="text-2xl md:text-3xl font-serif font-bold uppercase tracking-wider text-brand-text mb-3">
-                SEND US A MESSAGE
+                EMAIL SUPPORT
               </h2>
               <p className="text-brand-text-muted text-sm">
-                Have a specific question or issue with an order? Fill out the form below and we will get back to you shortly.
+                Add your details and message below. The button will open a new email addressed to novasior@gmail.com.
               </p>
             </div>
 
@@ -210,9 +215,9 @@ export default function Support() {
                 className="p-8 bg-brand-bg border border-brand-border rounded-2xl text-center"
               >
                 <CheckCircle2 className="w-12 h-12 text-emerald-600 mx-auto mb-4" />
-                <h3 className="text-xl font-serif font-bold text-brand-text mb-2 uppercase">Message Received</h3>
+                <h3 className="text-xl font-serif font-bold text-brand-text mb-2 uppercase">Email Draft Opened</h3>
                 <p className="text-brand-text-muted text-sm mb-6">
-                  Thank you, <span className="font-semibold text-brand-text">{formData.name}</span>. Your ticket has been submitted. Our support team will respond to <span className="font-semibold text-brand-text">{formData.email}</span> within 24 hours.
+                  Gmail opened in a new tab with your message addressed to <span className="font-semibold text-brand-text">novasior@gmail.com</span>. Press Send in Gmail to deliver it.
                 </p>
                 <button
                   onClick={() => {
@@ -221,7 +226,7 @@ export default function Support() {
                   }}
                   className="px-6 py-2.5 bg-brand-text text-white text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-neutral-800 transition-colors"
                 >
-                  Send Another Message
+                  Write Another Message
                 </button>
               </motion.div>
             ) : (
@@ -305,23 +310,12 @@ export default function Support() {
                   type="submit"
                   className="w-full py-4 bg-brand-text text-white font-bold text-xs uppercase tracking-[0.2em] rounded-xl hover:bg-neutral-800 transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 group"
                 >
-                  <span>Submit Inquiry</span>
+                  <span>Open Email</span>
                   <Send size={14} className="group-hover:translate-x-1 transition-transform" />
                 </button>
               </form>
             )}
 
-            <div className="mt-10 pt-8 border-t border-brand-border text-center flex flex-col md:flex-row items-center justify-center gap-6 text-xs text-brand-text-muted">
-              <span className="flex items-center gap-1.5">
-                <Mail size={14} className="text-brand-text" />
-                Direct Email: <a href="mailto:support@novasior.com" className="text-brand-text font-bold hover:underline">support@novasior.com</a>
-              </span>
-              <span className="hidden md:inline">•</span>
-              <span className="flex items-center gap-1.5">
-                <FileText size={14} className="text-brand-text" />
-                See our <Link to="/privacy" className="text-brand-text hover:underline font-semibold">Privacy Policy</Link> and <Link to="/terms" className="text-brand-text hover:underline font-semibold">Terms</Link>
-              </span>
-            </div>
           </div>
         </div>
       </div>

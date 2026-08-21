@@ -590,7 +590,9 @@ export default function ProductDetail() {
                     </div>
                     <div className="flex justify-between">
                       <span className="text-neutral-500">Format</span>
-                      <span className="font-semibold text-white">PNG / High Quality PDF</span>
+                      <span className="font-semibold text-white">
+                        {isTracker ? '.xlsx' : isEbook ? 'PDF' : 'PNG / JPG'}
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-neutral-500">Compatibility</span>

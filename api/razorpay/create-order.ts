@@ -1,5 +1,6 @@
 import { createRazorpayOrder } from '../lib/razorpay.js';
 import { getRequestBody, jsonError } from '../lib/request.js';
+import { validateProductItems } from '../lib/product-validation.js';
 
 export default async function handler(req: any, res: any) {
   if (req.method !== 'POST') {
@@ -22,12 +23,14 @@ export default async function handler(req: any, res: any) {
       return jsonError(res, 400, 'Customer name and email are required.');
     }
 
+    const validated = await validateProductItems(items, Math.round(amount * 100));
+
     const result = await createRazorpayOrder({
-      amount,
+      amount: validated.amountPaise / 100,
       currency,
       customerName,
       customerEmail,
-      items,
+      items: validated.items,
     });
 
     return res.status(200).json({

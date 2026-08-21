@@ -1,5 +1,7 @@
 import { supabaseAdminClient } from './config.js';
 
+const DOWNLOAD_LINK_TTL_SECONDS = 24 * 60 * 60;
+
 export interface VerifiedOrderPayload {
   razorpayOrderId: string;
   razorpayPaymentId: string;
@@ -26,6 +28,7 @@ export async function storeVerifiedOrderAndItems(payload: VerifiedOrderPayload) 
       .maybeSingle();
 
     if (existingOrder && existingOrder.payment_status === 'paid') {
+      await ensureDownloadAccess(existingOrder.id, payload.items);
       console.log(`ℹ️ Order already persisted and paid (orders.id = ${existingOrder.id}). Reusing existing order.`);
       return { success: true, orderId: existingOrder.id, isExisting: true };
     }
@@ -75,6 +78,8 @@ export async function storeVerifiedOrderAndItems(payload: VerifiedOrderPayload) 
       } else {
         console.log(`✓ Stored ${orderItemsRows.length} order_item(s) for order ${orderId}`);
       }
+
+      await ensureDownloadAccess(orderId, payload.items);
     }
 
     return { success: true, orderId, isExisting: false };
@@ -82,4 +87,25 @@ export async function storeVerifiedOrderAndItems(payload: VerifiedOrderPayload) 
     console.error('Database storage error:', error?.message || error);
     return { success: false, reason: error?.message || 'Database error' };
   }
+}
+
+async function ensureDownloadAccess(
+  orderId: number | string,
+  items: Array<{ id: string; name: string; quantity: number; price: number }>,
+) {
+  if (!supabaseAdminClient || items.length === 0) return;
+
+  const expiresAt = new Date(Date.now() + DOWNLOAD_LINK_TTL_SECONDS * 1000).toISOString();
+  const { error } = await supabaseAdminClient
+    .from('download_access')
+    .upsert(
+      items.map((item) => ({
+        order_id: orderId,
+        product_id: item.id,
+        expires_at: expiresAt,
+      })),
+      { onConflict: 'order_id,product_id', ignoreDuplicates: true },
+    );
+
+  if (error) throw new Error(`Download access setup failed: ${error.message}`);
 }

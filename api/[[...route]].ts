@@ -4,6 +4,8 @@ import { storeVerifiedOrderAndItems } from './lib/order-storage.js';
 import { notifyMakeWebhook } from './lib/make.js';
 import { getOrders, getOrderByRazorpayOrderId } from './lib/orders.js';
 import { getRequestBody, jsonError } from './lib/request.js';
+import { validateProductItems } from './lib/product-validation.js';
+import { createDownloadLinks, resolveDownloadLink } from '../server/download-links.js';
 
 function getRouteParts(req: any) {
   const url = new URL(req?.url || '/', 'https://example.com');
@@ -16,6 +18,19 @@ export default async function handler(req: any, res: any) {
   const method = String(req?.method || 'GET').toUpperCase();
   const segments = getRouteParts(req);
   const [first, second] = segments;
+
+  if (method === 'GET' && first === 'download' && second) {
+    try {
+      const result = await resolveDownloadLink(second);
+      if (result.status === 302) {
+        return res.redirect(result.url);
+      }
+      return res.status(result.status).json({ success: false, error: result.error });
+    } catch (error: any) {
+      console.error('Download resolution error:', error?.message || error);
+      return res.status(500).json({ success: false, error: 'Download could not be started.' });
+    }
+  }
 
   if (method === 'OPTIONS') {
     return res.status(204).end();
@@ -85,12 +100,14 @@ export default async function handler(req: any, res: any) {
         return jsonError(res, 400, 'Customer name and email are required.');
       }
 
+      const validated = await validateProductItems(items, Math.round(amount * 100));
+
       const result = await createRazorpayOrder({
-        amount,
+        amount: validated.amountPaise / 100,
         currency,
         customerName,
         customerEmail,
-        items,
+        items: validated.items,
       });
 
       return res.status(200).json({
@@ -148,17 +165,31 @@ export default async function handler(req: any, res: any) {
       }
 
       const safeAmountPaise = getAmountInPaise(Number(amount) || 0);
+      const validated = await validateProductItems(Array.isArray(items) ? items : [], safeAmountPaise);
+      const paymentDetails = await razorpayClient.payments.fetch(razorpay_payment_id) as any;
+      const razorpayOrder = await razorpayClient.orders.fetch(razorpay_order_id) as any;
+
+      if (
+        razorpayOrder?.amount !== validated.amountPaise ||
+        razorpayOrder?.currency !== String(currency).toUpperCase() ||
+        paymentDetails?.order_id !== razorpay_order_id ||
+        paymentDetails?.amount !== validated.amountPaise ||
+        paymentDetails?.currency !== String(currency).toUpperCase() ||
+        paymentDetails?.status !== 'captured'
+      ) {
+        return jsonError(res, 400, 'Payment details do not match the selected products.');
+      }
 
       const dbResult = await storeVerifiedOrderAndItems({
         razorpayOrderId: razorpay_order_id,
         razorpayPaymentId: razorpay_payment_id,
         razorpaySignature: razorpay_signature,
-        amount: safeAmountPaise,
+        amount: validated.amountPaise,
         currency,
         customerName: String(customerName || 'Customer'),
         customerEmail: String(customerEmail || ''),
         paymentMethod: actualPaymentMethod,
-        items: Array.isArray(items) ? items : [],
+        items: validated.items,
       });
 
       if (!dbResult.success || !dbResult.orderId) {
@@ -174,6 +205,8 @@ export default async function handler(req: any, res: any) {
         await notifyMakeWebhook(dbResult.orderId);
       }
 
+      const downloadLinks = await createDownloadLinks(dbResult.orderId);
+
       console.log(`✓ Payment verified: ${razorpay_payment_id} | orders.id: ${dbResult.orderId} | Method: ${actualPaymentMethod}`);
 
       return res.status(200).json({
@@ -183,6 +216,7 @@ export default async function handler(req: any, res: any) {
         orderId: dbResult.orderId,
         paymentId: razorpay_payment_id,
         paymentMethod: actualPaymentMethod,
+        downloadLinks,
       });
     } catch (error: any) {
       console.error('Razorpay verify-payment error:', error?.message || error);

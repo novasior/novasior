@@ -57,10 +57,10 @@ async function runEndToEndTest() {
       id: 'a0000000-0000-4000-8000-000000000002',
       name: 'Life Tracker',
       quantity: 1,
-      price: 499.00
+      price: 199.00
     }
   ];
-  const totalAmountPaise = (299 + 499) * 100; // 79800
+  const totalAmountPaise = (299 + 199) * 100; // 49800
 
   // 3. Simulate Server-Side Order & Order Items Persistence
   console.log('\n2. Persisting Paid Order in Supabase orders table...');

@@ -6,10 +6,10 @@ import {
   ArrowRight, 
   ShieldCheck, 
   Sparkles,
-  HelpCircle
+  HelpCircle,
+  Download
 } from 'lucide-react';
 import { useCartStore } from '../store';
-import { products } from '../data/products';
 
 export default function OrderSuccess() {
   const { lastOrder, clearCart } = useCartStore();
@@ -21,20 +21,21 @@ export default function OrderSuccess() {
   }, [clearCart]);
 
   // Fallback items if visited directly without state
-  const displayOrder = lastOrder || {
-    id: 'NOV-849201',
-    paymentId: 'pay_demo_123',
-    amount: 1299.00,
-    currency: 'INR',
-    name: 'Valued Customer',
-    email: 'customer@novasior.com',
-    date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-    total: 1299.00,
-    items: [
-      { product: products[0], quantity: 1 },
-      { product: products[1], quantity: 1 }
-    ]
-  };
+  if (!lastOrder) {
+    return (
+      <div className="min-h-screen bg-transparent text-brand-text font-sans pt-32 pb-32">
+        <div className="max-w-xl mx-auto px-6 md:px-12 text-center">
+          <h1 className="text-3xl md:text-5xl font-serif font-bold uppercase tracking-tight mb-4">Order Access</h1>
+          <p className="text-brand-text-muted leading-relaxed mb-8">Complete a purchase to view your secure digital downloads.</p>
+          <Link to="/shop" className="inline-flex items-center gap-2 px-6 py-3 bg-brand-text text-white rounded-xl text-xs font-bold uppercase tracking-wider">
+            Explore Shop <ArrowRight size={15} />
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  const displayOrder = lastOrder;
 
   return (
     <div className="min-h-screen bg-transparent text-brand-text font-sans pt-32 pb-32">
@@ -122,6 +123,7 @@ export default function OrderSuccess() {
 
           <div className="space-y-6">
             {displayOrder.items.map(({ product }, idx) => {
+              const download = displayOrder.downloadLinks?.find((link) => link.productId === product.id);
               return (
                 <motion.div
                   key={product.id}
@@ -155,10 +157,25 @@ export default function OrderSuccess() {
                     </p>
 
                     <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 text-[11px] font-semibold text-brand-text-muted">
-                      <span className="bg-brand-bg px-2.5 py-1 rounded-lg border border-brand-border">4K / 8K PNG</span>
-                      <span className="bg-brand-bg px-2.5 py-1 rounded-lg border border-brand-border">High-Res PDF</span>
+                      <span className="bg-brand-bg px-2.5 py-1 rounded-lg border border-brand-border">
+                        {product.slug === 'life-tracker' ? '.xlsx' : product.slug === '10-lessons' ? 'PDF' : '4K / 8K PNG & JPG'}
+                      </span>
                       <span className="bg-brand-bg px-2.5 py-1 rounded-lg border border-brand-border">Personal License</span>
                     </div>
+
+                    {download ? (
+                      <div className="mt-5 flex flex-wrap items-center justify-center md:justify-start gap-3">
+                        <a
+                          href={download.url}
+                          className="inline-flex items-center gap-2 px-5 py-3 bg-brand-text text-white rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-neutral-800 transition-colors"
+                        >
+                          <Download size={15} />
+                          Download File
+                        </a>
+                      </div>
+                    ) : (
+                      <p className="mt-5 text-xs font-semibold text-rose-700">Secure download unavailable. Please contact support.</p>
+                    )}
                   </div>
                 </motion.div>
               );
