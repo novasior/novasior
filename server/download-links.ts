@@ -149,7 +149,31 @@ export async function resolveDownloadLink(token: string) {
     return { status: 404 as const, error: 'The purchased file is unavailable.' };
   }
 
-  return { status: 302 as const, url: signedUrl.signedUrl };
+  return {
+    status: 302 as const,
+    url: signedUrl.signedUrl,
+    fileName: product.storage_path.split('/').pop() || 'novasior-product',
+  };
+}
+
+export async function sendDownload(res: any, url: string, fileName: string) {
+  const fileResponse = await fetch(url);
+  if (!fileResponse.ok) {
+    return false;
+  }
+
+  const safeFileName = fileName.replace(/[\\"\r\n]/g, '_');
+  const contentType = fileResponse.headers.get('content-type') || 'application/octet-stream';
+  const contentLength = fileResponse.headers.get('content-length');
+  const file = Buffer.from(await fileResponse.arrayBuffer());
+
+  res.status(200);
+  res.setHeader('Content-Type', contentType);
+  res.setHeader('Content-Disposition', `attachment; filename="${safeFileName}"`);
+  if (contentLength) res.setHeader('Content-Length', contentLength);
+  res.setHeader('Cache-Control', 'private, no-store');
+  res.send(file);
+  return true;
 }
 
 export async function validateOrderItems(items: RequestedItem[], amountPaise: number) {

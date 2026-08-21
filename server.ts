@@ -6,7 +6,7 @@ import { createServer as createViteServer } from 'vite';
 import dotenv from 'dotenv';
 import { pathToFileURL } from 'url';
 import { createClient } from '@supabase/supabase-js';
-import { createDownloadLinks, resolveDownloadLink } from './server/download-links.js';
+import { createDownloadLinks, resolveDownloadLink, sendDownload } from './server/download-links.js';
 import { validateOrderItems } from './server/download-links.js';
 
 dotenv.config();
@@ -212,7 +212,11 @@ app.get('/api/razorpay/key', (_req, res) => {
 app.get('/api/download/:token', async (req, res) => {
   try {
     const result = await resolveDownloadLink(req.params.token);
-    if (result.status === 302) return res.redirect(result.url);
+    if (result.status === 302) {
+      const sent = await sendDownload(res, result.url, result.fileName);
+      if (sent) return;
+      return res.status(404).json({ success: false, error: 'The purchased file is unavailable.' });
+    }
     return res.status(result.status).json({ success: false, error: result.error });
   } catch (error: any) {
     console.error('Download resolution error:', error?.message || error);

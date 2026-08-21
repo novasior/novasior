@@ -1,4 +1,4 @@
-import { resolveDownloadLink } from '../../server/download-links.js';
+import { resolveDownloadLink, sendDownload } from '../../server/download-links.js';
 
 export default async function handler(req: any, res: any) {
   if (String(req?.method || 'GET').toUpperCase() !== 'GET') {
@@ -14,7 +14,9 @@ export default async function handler(req: any, res: any) {
   try {
     const result = await resolveDownloadLink(token);
     if (result.status === 302) {
-      return res.redirect(302, result.url);
+      const sent = await sendDownload(res, result.url, result.fileName);
+      if (!sent) return res.status(404).json({ success: false, error: 'The purchased file is unavailable.' });
+      return;
     }
     return res.status(result.status).json({ success: false, error: result.error });
   } catch (error: any) {

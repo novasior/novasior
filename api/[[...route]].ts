@@ -5,7 +5,7 @@ import { notifyMakeWebhook } from './lib/make.js';
 import { getOrders, getOrderByRazorpayOrderId } from './lib/orders.js';
 import { getRequestBody, jsonError } from './lib/request.js';
 import { validateProductItems } from './lib/product-validation.js';
-import { createDownloadLinks, resolveDownloadLink } from '../server/download-links.js';
+import { createDownloadLinks, resolveDownloadLink, sendDownload } from '../server/download-links.js';
 
 function getRouteParts(req: any) {
   const url = new URL(req?.url || '/', 'https://example.com');
@@ -23,7 +23,9 @@ export default async function handler(req: any, res: any) {
     try {
       const result = await resolveDownloadLink(second);
       if (result.status === 302) {
-        return res.redirect(result.url);
+        const sent = await sendDownload(res, result.url, result.fileName);
+        if (!sent) return res.status(404).json({ success: false, error: 'The purchased file is unavailable.' });
+        return;
       }
       return res.status(result.status).json({ success: false, error: result.error });
     } catch (error: any) {
