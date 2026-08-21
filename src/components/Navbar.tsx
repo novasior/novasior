@@ -34,17 +34,17 @@ export default function Navbar() {
       <nav
         className={`fixed left-1/2 transform -translate-x-1/2 z-50 transition-all duration-500 rounded-2xl top-4 ${
           isScrolled 
-            ? 'w-[90%] md:w-[85%] max-w-[64rem] bg-white/95 backdrop-blur-md border border-brand-border py-3 shadow-md' 
-            : 'w-[95%] md:w-[90%] max-w-[72rem] bg-white/50 backdrop-blur-md border border-brand-border/50 py-4 shadow-sm'
+            ? 'w-[90%] lg:w-[85%] max-w-[64rem] bg-white/95 backdrop-blur-md border border-brand-border py-3 shadow-md' 
+            : 'w-[95%] lg:w-[90%] max-w-[72rem] bg-white/50 backdrop-blur-md border border-brand-border/50 py-4 shadow-sm'
         }`}
       >
-        <div className="mx-auto w-full px-6 md:px-12 flex items-center justify-between">
+        <div className="mx-auto w-full px-5 sm:px-6 lg:px-12 flex items-center justify-between">
           <Link to="/" className="text-xl font-bold tracking-widest text-brand-text" style={{ fontFamily: 'Georgia, serif', textTransform: 'uppercase' }}>
             NOVASIOR
           </Link>
 
           {/* Desktop Nav - Centered */}
-          <div className="hidden md:flex items-center space-x-8 absolute left-1/2 transform -translate-x-1/2">
+          <div className="hidden lg:flex items-center space-x-8 absolute left-1/2 transform -translate-x-1/2">
             {navLinks.map((link) => (
               <Link
                 key={link.path}
@@ -58,7 +58,7 @@ export default function Navbar() {
           </div>
           
           {/* Right Side */}
-          <div className="hidden md:flex items-center space-x-6">
+          <div className="hidden lg:flex items-center space-x-6">
             <button 
               onClick={() => setIsOpen(true)}
               className="relative text-brand-text hover:text-brand-accent transition-transform hover:scale-110 duration-200"
@@ -83,7 +83,7 @@ export default function Navbar() {
           </div>
 
           {/* Mobile Nav Toggle */}
-          <div className="md:hidden flex items-center space-x-6">
+          <div className="lg:hidden flex items-center space-x-4 sm:space-x-6">
             <button 
               onClick={() => setIsOpen(true)}
               className="relative text-brand-text hover:text-brand-accent transition-colors"

@@ -7,7 +7,7 @@ export default function Footer() {
       <div 
         className="max-w-[72rem] mx-auto bg-white border border-brand-border rounded-[32px] p-8 md:p-12 shadow-sm"
       >
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-16">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
           
           <div>
             <h3 className="text-[10px] font-bold tracking-widest uppercase text-brand-text mb-6">COMPANY</h3>

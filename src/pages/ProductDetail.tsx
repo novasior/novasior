@@ -139,9 +139,9 @@ export default function ProductDetail() {
         <div className="text-center mb-12">
           <h2 className="text-2xl font-bold tracking-tight text-brand-text">What's Included</h2>
         </div>
-        <div className={isEbook ? 'flex justify-center' : 'grid grid-cols-1 md:grid-cols-3 gap-6'}>
+        <div className={isEbook ? 'flex justify-center' : 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'}>
           {product.includedItems?.map((item, idx) => (
-             <div key={idx} className={`bg-white border border-brand-border rounded-[16px] p-6 shadow-sm flex flex-col gap-4 ${isEbook ? 'items-center text-center w-full md:w-1/2' : 'items-start'}`}>
+             <div key={idx} className={`bg-white border border-brand-border rounded-[16px] p-6 shadow-sm flex flex-col gap-4 ${isEbook ? 'items-center text-center w-full sm:w-1/2' : 'items-start'}`}>
                <div className="w-8 h-8 rounded-full bg-brand-bg border border-brand-border flex items-center justify-center text-brand-text">
                  <Check size={14} />
                </div>

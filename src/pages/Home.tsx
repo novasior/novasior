@@ -89,7 +89,7 @@ export default function Home() {
              Build discipline, shape your identity, execute with clarity.
            </motion.h2>
         </div>
-        <div className="max-w-[72rem] mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="max-w-[72rem] mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {[
             { num: '01', title: 'Build Discipline', desc: 'Resources designed to help turn intentions into consistent execution.' },
             { num: '02', title: 'Shape Your Identity', desc: 'Tools designed around the person you want to become.' },
@@ -210,7 +210,7 @@ export default function Home() {
             </motion.div>
           </div>
           
-          <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+          <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
              {products.map((product, idx) => {
                const isInCart = items.some((item) => item.product.id === product.id);
 

@@ -85,7 +85,7 @@ export default function OrderSuccess() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.3 }}
-          className="bg-white/85 backdrop-blur-md border border-brand-border rounded-3xl p-6 md:p-8 mb-12 shadow-sm grid grid-cols-2 md:grid-cols-4 gap-6 text-center"
+          className="bg-white/85 backdrop-blur-md border border-brand-border rounded-3xl p-6 sm:p-8 mb-12 shadow-sm grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-center"
         >
           <div>
             <span className="block text-[10px] font-bold text-brand-text-muted uppercase tracking-widest mb-1">Order Number</span>
@@ -130,10 +130,10 @@ export default function OrderSuccess() {
                   initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: 0.4 + idx * 0.1 }}
-                  className="bg-white border border-brand-border rounded-3xl p-6 md:p-8 shadow-sm flex flex-col md:flex-row items-center gap-6"
+                  className="bg-white border border-brand-border rounded-3xl p-6 sm:p-8 shadow-sm flex flex-col lg:flex-row items-center gap-6"
                 >
                   {/* Thumbnail */}
-                  <div className="w-full md:w-32 aspect-[4/5] bg-brand-bg rounded-2xl overflow-hidden border border-brand-border shrink-0 relative group">
+                  <div className="w-full sm:w-32 lg:w-32 aspect-[4/5] bg-brand-bg rounded-2xl overflow-hidden border border-brand-border shrink-0 relative group">
                     <img 
                       src={product.heroImage} 
                       alt={product.name} 
@@ -145,7 +145,7 @@ export default function OrderSuccess() {
                   </div>
 
                   {/* Info */}
-                  <div className="flex-1 text-center md:text-left">
+                  <div className="flex-1 text-center lg:text-left">
                     <span className="text-[10px] font-bold tracking-widest text-brand-accent uppercase bg-brand-bg border border-brand-border px-3 py-1 rounded-full inline-block mb-2">
                       {product.category}
                     </span>
@@ -156,7 +156,7 @@ export default function OrderSuccess() {
                       {product.description}
                     </p>
 
-                    <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 text-[11px] font-semibold text-brand-text-muted">
+                    <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2 text-[11px] font-semibold text-brand-text-muted">
                       <span className="bg-brand-bg px-2.5 py-1 rounded-lg border border-brand-border">
                         {product.slug === 'life-tracker' ? '.xlsx' : product.slug === '10-lessons' ? 'PDF' : '4K / 8K PNG & JPG'}
                       </span>
@@ -164,7 +164,7 @@ export default function OrderSuccess() {
                     </div>
 
                     {download ? (
-                      <div className="mt-5 flex flex-wrap items-center justify-center md:justify-start gap-3">
+                      <div className="mt-5 flex flex-wrap items-center justify-center lg:justify-start gap-3">
                         <a
                           href={download.url}
                           className="inline-flex items-center gap-2 px-5 py-3 bg-brand-text text-white rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-neutral-800 transition-colors"
@@ -188,9 +188,9 @@ export default function OrderSuccess() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.6 }}
-          className="bg-white border border-brand-border rounded-3xl p-8 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6"
+          className="bg-white border border-brand-border rounded-3xl p-8 shadow-sm flex flex-col lg:flex-row items-center justify-between gap-6"
         >
-          <div className="flex items-center gap-4 text-center md:text-left">
+          <div className="flex items-center gap-4 text-center lg:text-left">
             <div className="p-3 bg-brand-bg border border-brand-border rounded-2xl text-brand-text shrink-0">
               <ShieldCheck size={24} />
             </div>
@@ -200,10 +200,10 @@ export default function OrderSuccess() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3 w-full md:w-auto">
+          <div className="flex items-center gap-3 w-full lg:w-auto">
             <Link
               to="/support"
-              className="flex-1 md:flex-none px-5 py-3 border border-brand-border text-brand-text rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-brand-bg transition-colors text-center flex items-center justify-center gap-2"
+              className="flex-1 lg:flex-none px-5 py-3 border border-brand-border text-brand-text rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-brand-bg transition-colors text-center flex items-center justify-center gap-2"
             >
               <HelpCircle size={15} />
               <span>Get Support</span>
@@ -211,7 +211,7 @@ export default function OrderSuccess() {
 
             <Link
               to="/shop"
-              className="flex-1 md:flex-none px-6 py-3 bg-brand-text text-white rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-neutral-800 transition-colors text-center flex items-center justify-center gap-2"
+              className="flex-1 lg:flex-none px-6 py-3 bg-brand-text text-white rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-neutral-800 transition-colors text-center flex items-center justify-center gap-2"
             >
               <span>Explore Shop</span>
               <ArrowRight size={15} />
