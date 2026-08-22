@@ -196,7 +196,7 @@ export default function OrderSuccess() {
             </div>
             <div>
               <h4 className="font-bold text-sm uppercase text-brand-text mb-1">Lifetime Access Guarantee</h4>
-              <p className="text-xs text-brand-text-muted">A backup receipt and download key have been dispatched to <strong>{displayOrder.email}</strong>.</p>
+              <p className="text-xs text-brand-text-muted">A backup receipt and download key have been dispatched to <strong>{displayOrder.email}</strong>. Please check your spam or junk folder if you do not see the product email.</p>
             </div>
           </div>
 
